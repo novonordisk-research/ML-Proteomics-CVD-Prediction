@@ -1,0 +1,14 @@
+name: automl_train
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+    - azure-ai-ml
+    - azureml-dataprep
+    - azureml-fsspec
+    - azure-identity
+    - azureml-mlflow
+    - mlflow
+    - numpy
+    - pandas
+    

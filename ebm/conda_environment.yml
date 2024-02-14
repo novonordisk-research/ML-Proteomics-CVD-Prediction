@@ -1,0 +1,19 @@
+name: ebm_env
+dependencies:
+  - python==3.8
+  - pip
+  - pip:
+    - azure-ai-ml
+    - azureml-dataprep
+    - azureml-fsspec
+    - azure-identity
+    - azureml-mlflow
+    - dask
+    - flatten_dict
+    - mlflow
+    - mltable
+    - numpy
+    - pandas
+    - interpret==0.4.4
+    - hyperopt==0.2.7
+

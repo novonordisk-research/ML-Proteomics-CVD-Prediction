@@ -1,0 +1,13 @@
+name: automl_infer
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - azure-ai-ml==1.9.0
+    - azureml-fsspec
+    - azureml-automl-runtime
+    - shap
+    - matplotlib
+    - scikit-learn==0.22.1
+    - mltable
+    
