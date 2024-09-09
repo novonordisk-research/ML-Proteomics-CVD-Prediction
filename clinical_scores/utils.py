@@ -90,6 +90,51 @@ def rename_variables(df):
     df["alt"] = df["p30620_i0"]
     df["crp"] = df["p30710_i0"]
     df["rati"] = df["tc"] / df["hdlc"]
+    
+    # urine markers
+    # df["u_albumin"] = df["p30500_i0"]
+    # df["u_creatinine"] = df["p30510_i0"]
+
+    # eGFR
+    # From Table 2 at https://www.nejm.org/doi/full/10.1056/NEJMoa2102953
+    # μ × min(Scr/κ,1)^a1 × max(Scr/κ,1)^a2 × min(Scys/0.8,1)^b1 ×
+    # max(Scys/0.8,1)^b2 × c^Age × d[if female] × e[if Black]
+
+    # Creatinine-based eGFR
+    # convert umol/L to mg/dL
+    df["creatinine"] = df["p30700_i0"] * 0.0113
+
+    mu = 142
+    k = np.where(df["sex"] == 0, 0.7, 0.9)
+    a1 = np.where(df["sex"] == 0, -0.241, -0.302)
+    a2 = -1.200
+    c = 0.993
+    d = np.where(df["sex"] == 0, 1.012, 0)
+
+    df["egfr_creat"] = mu * \
+                       np.minimum(df["creatinine"] / k, 1) ** a1 * \
+                       np.maximum(df["creatinine"] / k, 1) ** a2 * \
+                       c ** df["age"] + \
+                       d
+
+    # Cystatin C + creatinine-based eGFR
+    df["cystatin_c"] = df["p30720_i0"] # mg/L
+
+    mu = 135
+    a1 = np.where(df["sex"] == 0, -0.299, -0.144)
+    a2 = -0.544
+    b1 = -0.323
+    b2 = -0.778
+    c = 0.9961
+    d = np.where(df["sex"] == 0, 0.963, 0)
+
+    df["egfr_creat_cys"] = mu * \
+                           np.minimum(df["creatinine"] / k, 1) ** a1 * \
+                           np.maximum(df["creatinine"] / k, 1) ** a2 * \
+                           np.minimum(df["cystatin_c"] / 0.8, 1) ** b1 * \
+                           np.maximum(df["cystatin_c"] / 0.8, 1) ** b2 * \
+                           c ** df["age"] + \
+                           d
 
     # socioeconomics
     df["income"] = df["p738_i0"]
