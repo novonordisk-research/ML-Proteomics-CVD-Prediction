@@ -138,6 +138,7 @@ def rename_variables(df):
 
     # socioeconomics
     df["income"] = df["p738_i0"]
+    df["sr-ethnicity"] = df["p21000_i0"]
     df["home_owner"] = df["p680_i0"]
     df["private_health"] = df["p4674_i0"]
     df["qualifications"] = df["p6138_i0"].str.split('|')
