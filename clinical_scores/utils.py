@@ -1,10 +1,17 @@
+import os
+import sys
+
 from azure.ai.ml import MLClient
 from azure.ai.ml.constants import AssetTypes
 from azure.ai.ml.entities import Data
 from azure.identity import DefaultAzureCredential
-
 import pandas as pd
 import numpy as np
+
+sys.path.append("../ukbb_preprocessing/")
+
+from raw_data_preprocessing.raw_data_loader import raw_data_loader
+from raw_data_preprocessing.constants import *
 
 
 def rename_variables(df):
@@ -166,6 +173,21 @@ def rename_variables(df):
     df = df[output_columns]
 
     return df
+
+
+def save_results(scores, path):
+
+    loader = raw_data_loader()
+
+    os.makedirs(path, exist_ok=True)
+
+    splits = loader._load_csv_folder(data_asset_name="ukbb_golden_splits_by_diagnosis_date", version=3)
+    splits = [split.set_index(split.IID.astype(int)) for split in splits]
+
+    for i, s in enumerate(splits):
+        s["IID"] = s["IID"].astype(int)
+        s = s.set_index("IID").merge(scores, on="IID")
+        s.to_csv(f'{path}/npx_clin_ascvd_{i}_test.csv', sep=',')
 
 class DataRegisterer(object):
     def __init__(self):
