@@ -1,10 +1,17 @@
+import os
+import sys
+
 from azure.ai.ml import MLClient
 from azure.ai.ml.constants import AssetTypes
 from azure.ai.ml.entities import Data
 from azure.identity import DefaultAzureCredential
-
 import pandas as pd
 import numpy as np
+
+sys.path.append("../ukbb_preprocessing/")
+
+from raw_data_preprocessing.raw_data_loader import raw_data_loader
+from raw_data_preprocessing.constants import *
 
 
 def rename_variables(df):
@@ -90,9 +97,55 @@ def rename_variables(df):
     df["alt"] = df["p30620_i0"]
     df["crp"] = df["p30710_i0"]
     df["rati"] = df["tc"] / df["hdlc"]
+    
+    # urine markers
+    # df["u_albumin"] = df["p30500_i0"]
+    # df["u_creatinine"] = df["p30510_i0"]
+
+    # eGFR
+    # From Table 2 at https://www.nejm.org/doi/full/10.1056/NEJMoa2102953
+    # μ × min(Scr/κ,1)^a1 × max(Scr/κ,1)^a2 × min(Scys/0.8,1)^b1 ×
+    # max(Scys/0.8,1)^b2 × c^Age × d[if female] × e[if Black]
+
+    # Creatinine-based eGFR
+    # convert umol/L to mg/dL
+    df["creatinine"] = df["p30700_i0"] * 0.0113
+
+    mu = 142
+    k = np.where(df["sex"] == 0, 0.7, 0.9)
+    a1 = np.where(df["sex"] == 0, -0.241, -0.302)
+    a2 = -1.200
+    c = 0.993
+    d = np.where(df["sex"] == 0, 1.012, 0)
+
+    df["egfr_creat"] = mu * \
+                       np.minimum(df["creatinine"] / k, 1) ** a1 * \
+                       np.maximum(df["creatinine"] / k, 1) ** a2 * \
+                       c ** df["age"] + \
+                       d
+
+    # Cystatin C + creatinine-based eGFR
+    df["cystatin_c"] = df["p30720_i0"] # mg/L
+
+    mu = 135
+    a1 = np.where(df["sex"] == 0, -0.299, -0.144)
+    a2 = -0.544
+    b1 = -0.323
+    b2 = -0.778
+    c = 0.9961
+    d = np.where(df["sex"] == 0, 0.963, 0)
+
+    df["egfr_creat_cys"] = mu * \
+                           np.minimum(df["creatinine"] / k, 1) ** a1 * \
+                           np.maximum(df["creatinine"] / k, 1) ** a2 * \
+                           np.minimum(df["cystatin_c"] / 0.8, 1) ** b1 * \
+                           np.maximum(df["cystatin_c"] / 0.8, 1) ** b2 * \
+                           c ** df["age"] + \
+                           d
 
     # socioeconomics
     df["income"] = df["p738_i0"]
+    df["sr-ethnicity"] = df["p21000_i0"]
     df["home_owner"] = df["p680_i0"]
     df["private_health"] = df["p4674_i0"]
     df["qualifications"] = df["p6138_i0"].str.split('|')
@@ -120,6 +173,21 @@ def rename_variables(df):
     df = df[output_columns]
 
     return df
+
+
+def save_results(scores, path):
+
+    loader = raw_data_loader()
+
+    os.makedirs(path, exist_ok=True)
+
+    splits = loader._load_csv_folder(data_asset_name="ukbb_golden_splits_by_diagnosis_date", version=3)
+    splits = [split.set_index(split.IID.astype(int)) for split in splits]
+
+    for i, s in enumerate(splits):
+        s["IID"] = s["IID"].astype(int)
+        s = s.set_index("IID").merge(scores, on="IID")
+        s.to_csv(f'{path}/npx_clin_ascvd_{i}_test.csv', sep=',')
 
 class DataRegisterer(object):
     def __init__(self):
