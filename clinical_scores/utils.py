@@ -180,6 +180,8 @@ def save_results(scores, path):
     loader = raw_data_loader()
 
     os.makedirs(path, exist_ok=True)
+    
+    scores.to_csv(f'{path}/all_participants.csv')
 
     splits = loader._load_csv_folder(data_asset_name="ukbb_golden_splits_by_diagnosis_date", version=3)
     splits = [split.set_index(split.IID.astype(int)) for split in splits]
@@ -187,7 +189,7 @@ def save_results(scores, path):
     for i, s in enumerate(splits):
         s["IID"] = s["IID"].astype(int)
         s = s.set_index("IID").merge(scores, on="IID")
-        s.to_csv(f'{path}/npx_clin_ascvd_{i}_test.csv', sep=',')
+        s.to_csv(f'{path}/npx_clin_ascvd_{i}_test.csv')
 
 class DataRegisterer(object):
     def __init__(self):
