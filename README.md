@@ -1,6 +1,6 @@
 # Interpretable Machine Learning for CVD Prediction
 
-Here is the code used to training the models shown in the paper **Interpretable Machine Learning Leverages Proteomics to Improve Cardiovascular Disease Risk Prediction and Biomarker Identification**, available on [medRxiv](https://www.medrxiv.org/content/10.1101/2024.01.12.24301213v1).
+Here is the code used to training the models shown in the paper **Interpretable Machine Learning Leverages Proteomics to Improve Cardiovascular Disease Risk Prediction and Biomarker Identification**, available on [Communications Medicine](https://www.nature.com/articles/s43856-025-00872-0).
 
 We implemented the following models:
 
