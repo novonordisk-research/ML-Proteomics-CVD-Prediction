@@ -4,7 +4,7 @@ Here is the code used to training the models shown in the paper **Interpretable 
 
 We implemented the following models:
 
-- [Clinical scores](clinical_scores): PCE, PREVENT, QRISK3 & SCORE2
+- [Clinical scores](clinical_scores): PCE, PREVENT, QRISK3, SCORE2 & SMART
 - Machine learning models:
   - [EBM](ebm)
   - [LightGBM](lightgbm)

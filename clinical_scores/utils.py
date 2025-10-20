@@ -166,6 +166,31 @@ def rename_variables(df):
     df["prs_iss"] = df["p26248"]
     df["eprs_iss"] = df["p26249"]
 
+    # compute time since first event
+    cvd_event_dates = ["p131056", "p131270", "p131272", "p131274", "p131276", "p131278", "p131280", "p131282",
+                    "p131284", "p131286", "p131288", "p131290", "p131292", "p131294", "p131296", "p131298",
+                    "p131300", "p131302", "p131304", "p131306", "p131308", "p131310", "p131312", "p131314",
+                    "p131316", "p131318", "p131320", "p131322", "p131324", "p131326", "p131328", "p131330",
+                    "p131332", "p131334", "p131336", "p131338", "p131340", "p131342", "p131344", "p131346",
+                    "p131348", "p131350", "p131352", "p131354", "p131356", "p131358", "p131360", "p131362",
+                    "p131364", "p131366", "p131368", "p131370", "p131372", "p131374", "p131376", "p131378",
+                    "p131380", "p131382", "p131384", "p131386", "p131388", "p131390", "p131392", "p131394",
+                    "p131396", "p131398", "p131400", "p131402", "p131404", "p131406", "p131408", "p131410",
+                    "p131412", "p131414", "p131416", "p131418", "p131420", "p131422"]
+
+    dates_df = df[cvd_event_dates].copy()
+
+    for col in dates_df.columns:
+        dates_df[col] = pd.to_datetime(dates_df[col], errors='coerce')
+
+    cvd_event_date = dates_df.min(axis=1)
+
+    diff_years = (baseline - cvd_event_date)
+    diff_years = diff_years.dt.days / 365.25
+
+    df["years_since_first_event"] = diff_years
+    
+    # save the new columns
     new_columns = set(df.columns)
 
     # output_columns = ["IID"]
