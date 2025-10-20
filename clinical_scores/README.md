@@ -1,10 +1,11 @@
 # Clinical scores
 
-This folder contains the implementations of the three clinical scores used in the study: 
+This folder contains the implementations of the four clinical scores:
 
 - [PCE](https://pubmed.ncbi.nlm.nih.gov/24222018/): [pce.ipynb](./pce.ipynb)
 - [PREVENT](https://pubmed.ncbi.nlm.nih.gov/37947085/): [prevent.ipynb](./prevent.ipynb)
 - [QRISK3](https://pubmed.ncbi.nlm.nih.gov/28536104/): [qrisk3.ipynb](./qrisk3.ipynb)
 - [SCORE2](https://pubmed.ncbi.nlm.nih.gov/36441402/): [score2.ipynb](./score2.ipynb)
+- [SMART](https://pubmed.ncbi.nlm.nih.gov/23574971/): [smart.ipynb](./smart.ipynb)
 
 We also extract relevant [PRSs](./prs.ipynb) from the UK Biobank.
